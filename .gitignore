@@ -164,7 +164,7 @@ cython_debug/
 data/
 uploads/
 logs/
-firmware/
+static/
 
 # Databases
 *.db

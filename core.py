@@ -1,14 +1,17 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+from starlette.staticfiles import StaticFiles
+
+load_dotenv()
 
 from database import create_db_and_tables
 from routes import router
-from logger import setup_logger
+from logger import logger
 
 EXTERNAL_ORIGIN = os.getenv("EXTERNAL_ORIGIN", "")
-
-logger = setup_logger()
+STATIC_ASSETS_PATH = os.getenv("STATIC_ASSETS_PATH", "debug")
 
 app_kwargs = {
     "title": "Github Guestbook API",
@@ -33,8 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Request logging middleware
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     logger.info(f"Incoming request {request.method} {request.url}")
@@ -44,11 +45,6 @@ async def log_requests(request: Request, call_next):
 
 
 app.include_router(router)
-
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
 
 create_db_and_tables()
 logger.info("Database initialized")
